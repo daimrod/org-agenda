@@ -31,9 +31,10 @@
 not, ask the user to add it. If the user refuse to add the file,
 it is added to `org-agenda-ignore-files'."
   (let ((file (buffer-file-name)))
-    (unless (or (find file org-agenda-files)
-                (find file org-agenda-ignore-files))
-      (if (yes-or-no-p "Do you want to add this file to org-agenda-files? ")
+    (when (and file
+               (not (or (find file org-agenda-files :test #'file-equal-p)
+                        (find file org-agenda-ignore-files :test #'file-equal-p))))
+      (if (yes-or-no-p (format "Do you want to add `%s' to org-agenda-files? " file))
           (org-agenda-file-to-front)
         (pushnew file org-agenda-ignore-files)))))
 
