@@ -40,6 +40,6 @@ it is added to `org-agenda-ignore-files'."
 
 (add-hook 'org-mode-hook 'org-agenda-check-file)
 
-(provide 'org-agenda)
+(provide 'org-agenda-check)
 
-;;; org-agenda.el ends here
+;;; org-agenda-check.el ends here
