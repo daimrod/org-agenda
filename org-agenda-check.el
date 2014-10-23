@@ -38,6 +38,11 @@ it is added to `org-agenda-ignore-files'."
           (org-agenda-file-to-front)
         (pushnew file org-agenda-ignore-files)))))
 
+(defun org-agenda-mode-line-string ()
+  (when (and (buffer-file-name)
+             (derived-mode-p 'org-mode)
+             (find (buffer-file-name) org-agenda-files :test #'file-equal-p))
+    "A"))
 (add-hook 'org-mode-hook 'org-agenda-check-file)
 
 (provide 'org-agenda-check)
