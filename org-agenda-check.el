@@ -43,6 +43,21 @@ it is added to `org-agenda-ignore-files'."
              (derived-mode-p 'org-mode)
              (find (buffer-file-name) org-agenda-files :test #'file-equal-p))
     "A"))
+
+(advice-add 'org-agenda-file-to-front :after
+            (lambda (&rest r)
+              "Remove the file from the ignore list when added to `org-agenda-files'."
+              (setq org-agenda-ignore-files (cl-delete (buffer-file-name)
+                                                       org-agenda-ignore-files
+                                                       :test #'file-equal-p)))
+            '((name . org-agenda-remove-from-ignore-files-when-added)))
+
+(advice-add 'org-remove-file :after
+            (lambda (&rest r)
+              "Add the file to the ignore list when removed from `org-agenda-files'."
+              (pushnew (buffer-file-name) org-agenda-ignore-files))
+            '((name . org-agenda-add-to-ignore-files-when-removed)))
+
 (add-hook 'org-mode-hook 'org-agenda-check-file)
 
 (provide 'org-agenda-check)
