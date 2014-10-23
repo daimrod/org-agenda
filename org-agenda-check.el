@@ -31,17 +31,20 @@
 not, ask the user to add it. If the user refuse to add the file,
 it is added to `org-agenda-ignore-files'."
   (let ((file (buffer-file-name)))
-    (when (and file
-               (not (or (find file org-agenda-files :test #'file-equal-p)
-                        (find file org-agenda-ignore-files :test #'file-equal-p))))
-      (if (yes-or-no-p (format "Do you want to add `%s' to org-agenda-files? " file))
+    (when file
+      (if (and (not (or (find file org-agenda-files :test #'file-equal-p)
+                        (find file org-agenda-ignore-files :test #'file-equal-p)))
+               (yes-or-no-p (format "Do you want to add `%s' to org-agenda-files? " file)))
           (org-agenda-file-to-front)
-        (pushnew file org-agenda-ignore-files)))))
+        (pushnew file org-agenda-ignore-files))
+      (setq org-agenda-file-in-agenda (find file org-agenda-files :test #'file-equal-p)))))
+
+(defvar-local org-agenda-file-in-agenda nil)
 
 (defun org-agenda-mode-line-string ()
   (when (and (buffer-file-name)
              (derived-mode-p 'org-mode)
-             (find (buffer-file-name) org-agenda-files :test #'file-equal-p))
+             org-agenda-file-in-agenda)
     "A"))
 
 (advice-add 'org-agenda-file-to-front :after
@@ -49,13 +52,15 @@ it is added to `org-agenda-ignore-files'."
               "Remove the file from the ignore list when added to `org-agenda-files'."
               (setq org-agenda-ignore-files (cl-delete (buffer-file-name)
                                                        org-agenda-ignore-files
-                                                       :test #'file-equal-p)))
+                                                       :test #'file-equal-p))
+              (setq org-agenda-file-in-agenda t))
             '((name . org-agenda-remove-from-ignore-files-when-added)))
 
 (advice-add 'org-remove-file :after
             (lambda (&rest r)
               "Add the file to the ignore list when removed from `org-agenda-files'."
-              (pushnew (buffer-file-name) org-agenda-ignore-files))
+              (pushnew (buffer-file-name) org-agenda-ignore-files)
+              (setq org-agenda-file-in-agenda nil))
             '((name . org-agenda-add-to-ignore-files-when-removed)))
 
 (add-hook 'org-mode-hook 'org-agenda-check-file)
