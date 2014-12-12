@@ -52,7 +52,7 @@ it is added to `org-agenda-ignore-files'."
               "Remove the file from the ignore list when added to `org-agenda-files'."
               (setq org-agenda-ignore-files (cl-delete (buffer-file-name)
                                                        org-agenda-ignore-files
-                                                       :test #'file-equal-p))
+                                                       :test #'equal))
               (setq org-agenda-file-in-agenda t))
             '((name . org-agenda-remove-from-ignore-files-when-added)))
 
